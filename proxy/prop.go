@@ -20,6 +20,12 @@ func (pp *Prop) Flag() *bitwise.Flag {
 	return &f
 }
 
+func (pp *Prop) Set(prop uint, on bool) {
+	f := pp.Flag()
+	f.Set(prop, on)
+	*pp = Prop(*f)
+}
+
 func (pp *Prop) MarshalJSON() ([]byte, error) {
 	return json.Marshal(map[string]any{
 		"disabled":    bitwise.Flag(*pp).Has(PROP_DISABLED),
