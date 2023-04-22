@@ -4,8 +4,6 @@ import (
 	"errors"
 	"sync"
 	"time"
-
-	"github.com/matryer/resync"
 )
 
 type Pool struct {
@@ -22,6 +20,7 @@ type Pool struct {
 	recycleDoneChan   chan bool
 	recycleChan       chan bool
 	recycleThreashold int
+	recycleInProcess  bool
 
 	blacklistChan chan bool
 }
@@ -36,6 +35,7 @@ func NewPool(proxies []string) *Pool {
 
 		recycleDoneChan:   make(chan bool),
 		recycleThreashold: 3,
+		recycleInProcess:  false,
 
 		blacklistChan: make(chan bool),
 	}
@@ -48,6 +48,16 @@ func NewPool(proxies []string) *Pool {
 }
 
 func (pp *Pool) recycleProxies(force bool) error {
+	if pp.recycleInProcess {
+		// recycleInProcess skip
+		return nil
+	}
+
+	pp.recycleInProcess = true
+	defer func() {
+		pp.recycleInProcess = false
+	}()
+
 	// disable check for force flag
 	if !force && pp.actual.Len() > 10 {
 		return nil
@@ -119,7 +129,6 @@ func (pp *Pool) StartRecylce() error {
 	if pp.recycleTicker != nil {
 		return errors.New("recycle already started")
 	}
-	var once resync.Once
 
 	pp.recycleTicker = time.NewTicker(15 * time.Second)
 	go func() {
@@ -130,11 +139,7 @@ func (pp *Pool) StartRecylce() error {
 			case <-pp.recycleTicker.C:
 				pp.recycleProxies(false)
 			case <-pp.recycleChan:
-				once.Do(func() {
-					if err := pp.recycleProxies(false); err == nil {
-						once.Reset()
-					}
-				})
+				pp.recycleProxies(false)
 			case <-pp.blacklistChan:
 
 				pp.filterFreshList()
