@@ -63,6 +63,13 @@ func (pl *List) Has(proxy string) bool {
 	return ok
 }
 
+func (pl *List) Len() int {
+	pl.RLock()
+	defer pl.RUnlock()
+
+	return len(pl.list)
+}
+
 func (pl *List) Get() string {
 	pl.RLock()
 	defer pl.RUnlock()
