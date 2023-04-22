@@ -37,7 +37,12 @@ func (pl *List) Fetch() map[string]struct{} {
 	pl.RLock()
 	defer pl.RUnlock()
 
-	return pl.list
+	l := map[string]struct{}{}
+	for proxy := range pl.list {
+		l[proxy] = struct{}{}
+	}
+
+	return l
 }
 
 func (pl *List) Add(proxy string) {
