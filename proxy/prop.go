@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	PROP_DISABLED    = 1
-	PROP_BLACKLISTED = uint(iota << 1)
+	PROP_DISABLED = 1 << uint(iota)
+	PROP_BLACKLISTED
 	PROP_WORTH
 	PROP_RATE_LIMIT
 )

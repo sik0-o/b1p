@@ -9,8 +9,8 @@ type Flag uint
 // This is example - how to setup boolean flag as bit order
 const (
 	// uint8
-	FLAG_EXAMPLE_1 = 1
-	FLAG_EXAMPLE_2 = uint(iota) << 1
+	FLAG_EXAMPLE_1 = 1 << uint(iota)
+	FLAG_EXAMPLE_2
 	FLAG_EXAMPLE_3
 	FLAG_EXAMPLE_4
 	FLAG_EXAMPLE_5
